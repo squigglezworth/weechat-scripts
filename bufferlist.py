@@ -6,62 +6,7 @@ try:
     import weechat
 except ImportError:
     print('Please run in weechat')
-    # sys.exit()
-
-
-# Register the script
-weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script', 'cleanup', '')
-
-
-# Start configuring options
-options = {
-    'display_conditions': (
-        '${buffer.hidden} == 0)'
-        'Conditions to display buffers (see /help eval)'),
-    'color.default_fg': (
-        'default',
-        'Default foreground color for buffers'),
-    'color.default_bg': (
-        'default',
-        'Default background color for buffers'),
-    'color.current_fg': (
-        'lightblue',
-        'Foreground for currently selected buffer'),
-    'color.current_bg': (
-        'default',
-        'Background for currently selected buffer'),
-    'color.hotlist_low': (
-        'default',
-        'Color for buffers in hotlist with \'low\' level'),
-    'color.hotlist_message': (
-        'white',
-        'Color for buffers in hotlist with \'message\' level'),
-    'color.hotlist_private': (
-        'red',
-        'Color for buffers in hotlist with \'private\' level'),
-    'color.hotlist_highlight': (
-        'red',
-        'Color for buffers in hotlist with \'highlight\' priority'),
-    'color.icon': (
-        'lightblue',
-        'Color for icons in list (non-IRC buffers)'),
-}
-
-# Descriptions are only supported in weechat 0.3.5 and up
-# Might remove this check, as nobody running such an old version deserves this script
-version = weechat.info_get('version_number', '')
-set_desc = 1 if int(version) >= 0x00030500 else 0
-
-# Loop through and set options with default values and descriptions, and load values into another dict to use
-option_values = {}
-for option, values in options.items():
-    if not weechat.config_is_set_plugin(option):
-        weechat.config_set_plugin(option, values[0])
-
-        if set_desc:
-            weechat.config_set_desc_plugin(option, values[1])
-
-    option_values[option] = weechat.config_get_plugin(option)
+    sys.exit()
 
 
 def get_nick_prefix(pointer):
@@ -74,7 +19,7 @@ def get_nick_prefix(pointer):
 
 def build_list(data, item, window):
     # Setup variables
-    # First retreive the `hdata`s, then get relevant lists
+    # First retrieve the `hdata`s, then get relevant lists
     buffer_hdata   = weechat.hdata_get('buffer')
     server_hdata   = weechat.hdata_get('irc_server')
     hotlist_hdata  = weechat.hdata_get('hdata')
@@ -155,14 +100,14 @@ def build_list(data, item, window):
             nick_prefix = get_nick_prefix(buffer_pointer)
             buflist += nick_prefix
 
-            # Add the actual buffer name
+            # Add the buffer name
             buflist += name
 
+            # Add nick modes next to server buffers, if any are set
             if buffer_type == 'server':
                 # Search for and retrieve a pointer for the server
                 pointer = weechat.hdata_search(server_hdata, server_pointer, "${irc_server.name} == " + server, 1)
 
-                # Add nick modes, if any are set
                 nick_modes      = weechat.hdata_string(server_hdata, pointer, "nick_modes")
 
                 if nick_modes:
@@ -175,16 +120,69 @@ def build_list(data, item, window):
     # All done. Return the list
     return buflist
 
-# Create bar item
-weechat.bar_item_new('squigzlist', 'build_list', '')
-
-# Hook various signals on which to refresh the list
-signals = ["buffer_opened", "buffer_closed", "buffer_merged", "buffer_unmerged", "buffer_moved", "buffer_renamed", "buffer_switch", "buffer_hidden", "buffer_unhidden", "buffer_localvar_added", "buffer_localvar_changed"]
-
 def signal_handler(data, signal, signal_data):
     weechat.bar_item_update('squigzlist')
 
     return weechat.WEECHAT_RC_OK
 
-for signal in signals:
-    weechat.hook_signal(signal, 'signal_handler', '')
+# Register the script
+if weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script', '', ''):
+
+    # Start configuring options
+    options = {
+        'display_conditions': (
+            '$\{buffer.hidden\} == 0)'
+            'Conditions to display buffers (see /help eval)'),
+        'color.default_fg': (
+            'default',
+            'Default foreground color for buffers'),
+        'color.default_bg': (
+            'default',
+            'Default background color for buffers'),
+        'color.current_fg': (
+            'lightblue',
+            'Foreground for currently selected buffer'),
+        'color.current_bg': (
+            'default',
+            'Background for currently selected buffer'),
+        'color.hotlist_low': (
+            'default',
+            'Color for buffers in hotlist with \'low\' level'),
+        'color.hotlist_message': (
+            'white',
+            'Color for buffers in hotlist with \'message\' level'),
+        'color.hotlist_private': (
+            'red',
+            'Color for buffers in hotlist with \'private\' level'),
+        'color.hotlist_highlight': (
+            'red',
+            'Color for buffers in hotlist with \'highlight\' priority'),
+        'color.icon': (
+            'lightblue',
+            'Color for icons in list (non-IRC buffers)'),
+    }
+
+    # Descriptions are only supported in weechat 0.3.5 and up
+    # Might remove this check, as nobody running such an old version deserves this script
+    version = weechat.info_get('version_number', '')
+    set_desc = 1 if int(version) >= 0x00030500 else 0
+
+    # Loop through and set options with default values and descriptions, and load values into another dict to use
+    option_values = {}
+    for option, values in options.items():
+        if not weechat.config_is_set_plugin(option):
+            weechat.config_set_plugin(option, values[0])
+
+            if set_desc:
+                weechat.config_set_desc_plugin(option, values[1])
+
+        option_values[option] = weechat.config_get_plugin(option)
+
+    # Create bar item
+    weechat.bar_item_new('squigzlist', 'build_list', '')
+
+    # Hook various signals on which to refresh the list
+    signals = ["buffer_opened", "buffer_closed", "buffer_merged", "buffer_unmerged", "buffer_moved", "buffer_renamed", "buffer_switch", "buffer_hidden", "buffer_unhidden", "buffer_localvar_added", "buffer_localvar_changed"]
+
+    for signal in signals:
+        weechat.hook_signal(signal, 'signal_handler', '')
