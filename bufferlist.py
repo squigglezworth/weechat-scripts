@@ -7,7 +7,7 @@ try:
 except ImportError:
     print('Please run in weechat')
     sys.exit()
-
+option_values = {}
 
 def get_nick_prefix(pointer):
     nick = weechat.buffer_get_string(pointer, "localvar_nick")
@@ -125,6 +125,17 @@ def signal_handler(data, signal, signal_data):
 
     return weechat.WEECHAT_RC_OK
 
+option_values = {}
+def config_handler(data, option, value):
+    # Splits the full config option name (plugins.var.python...) to something easier to work with
+    option = '.'.join(option.split('.')[-2:])
+
+    option_values[option] = value
+
+    weechat.bar_item_update('squigzlist')
+
+    return weechat.WEECHAT_RC_OK
+
 # Register the script
 if weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script', '', ''):
 
@@ -134,7 +145,7 @@ if weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script'
             '$\{buffer.hidden\} == 0)'
             'Conditions to display buffers (see /help eval)'),
         'color.default_fg': (
-            'default',
+            '237',
             'Default foreground color for buffers'),
         'color.default_bg': (
             'default',
@@ -177,6 +188,9 @@ if weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script'
                 weechat.config_set_desc_plugin(option, values[1])
 
         option_values[option] = weechat.config_get_plugin(option)
+
+    # Setup callback for config option updates
+    weechat.hook_config('plugins.var.python.squigzlist.*', 'config_handler', '')
 
     # Create bar item
     weechat.bar_item_new('squigzlist', 'build_list', '')
