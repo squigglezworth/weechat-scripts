@@ -138,7 +138,6 @@ def config_handler(data, option, value):
 
 # Register the script
 if weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script', '', ''):
-
     # Start configuring options
     options = {
         'display_conditions': (
@@ -173,19 +172,13 @@ if weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script'
             'Color for icons in list (non-IRC buffers)'),
     }
 
-    # Descriptions are only supported in weechat 0.3.5 and up
-    # Might remove this check, as nobody running such an old version deserves this script
-    version = weechat.info_get('version_number', '')
-    set_desc = 1 if int(version) >= 0x00030500 else 0
-
-    # Loop through and set options with default values and descriptions, and load values into another dict to use
+    # Loop through and set options with default values and descriptions, and load values into dict to use
     option_values = {}
     for option, values in options.items():
         if not weechat.config_is_set_plugin(option):
             weechat.config_set_plugin(option, values[0])
 
-            if set_desc:
-                weechat.config_set_desc_plugin(option, values[1])
+            weechat.config_set_desc_plugin(option, values[1])
 
         option_values[option] = weechat.config_get_plugin(option)
 
