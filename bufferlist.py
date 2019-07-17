@@ -22,7 +22,7 @@ def build_list(data, item, window):
     # First retrieve the `hdata`s, then get relevant lists
     buffer_hdata   = weechat.hdata_get('buffer')
     server_hdata   = weechat.hdata_get('irc_server')
-    hotlist_hdata  = weechat.hdata_get('hdata')
+    hotlist_hdata  = weechat.hdata_get('hotlist')
     buffer_pointer = weechat.hdata_get_list(buffer_hdata, 'gui_buffers')
     server_pointer = weechat.hdata_get_list(server_hdata, 'irc_servers')
     buflist        = ''
@@ -182,7 +182,7 @@ if weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script'
     weechat.bar_item_new('squigzlist', 'build_list', '')
 
     # Hook various signals on which to refresh the list
-    signals = ["buffer_opened", "buffer_closed", "buffer_merged", "buffer_unmerged", "buffer_moved", "buffer_renamed", "buffer_switch", "buffer_hidden", "buffer_unhidden", "buffer_localvar_added", "buffer_localvar_changed"]
+    signals = ["buffer_opened", "buffer_closed", "buffer_merged", "buffer_unmerged", "buffer_moved", "buffer_renamed", "buffer_switch", "buffer_hidden", "buffer_unhidden", "buffer_localvar_added", "buffer_localvar_changed", "hotlist_changed"]
 
     for signal in signals:
         weechat.hook_signal(signal, 'signal_handler', '')
