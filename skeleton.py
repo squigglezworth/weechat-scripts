@@ -18,6 +18,9 @@ def config_handler(data, option, value):
 
 if weechat.register(SCRIPT_NAME, SCRIPT_AUTHOR, '', '', SCRIPT_DESCRIPTION, '', ''):
     options = {
+        # 'option_name': (
+        #     'value',
+        #     'description'),
     }
 
     option_values = {}
