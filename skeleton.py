@@ -28,3 +28,5 @@ if weechat.register(SCRIPT_NAME, SCRIPT_AUTHOR, '', '', SCRIPT_DESCRIPTION, '', 
         	weechat.config_set_desc_plugin(option, values[1])
 
     weechat.hook_config('plugins.var.python.' + SCRIPT_NAME + '.*', 'config_handler', '')
+
+    # Main stuff here
