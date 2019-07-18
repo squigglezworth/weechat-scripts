@@ -7,8 +7,9 @@ try:
 except ImportError:
     print('Please run in weechat')
     sys.exit()
-option_values = {}
 
+
+# Function for retrieving nick prefix (@, +, etc)
 def get_nick_prefix(pointer):
     nick = weechat.buffer_get_string(pointer, "localvar_nick")
     nick_pointer = weechat.nicklist_search_nick(pointer, "", nick)
@@ -17,6 +18,7 @@ def get_nick_prefix(pointer):
 
     return prefix
 
+# Main function that builds the list
 def build_list(data, item, window):
     # Setup variables
     # First retrieve the `hdata`s, then get relevant lists
@@ -78,7 +80,7 @@ def build_list(data, item, window):
                 buflist += weechat.color(option_values['color.current_fg'])
                 buflist += "●"
             elif priority == 1:
-               buflist += weechat.color(option_values['color.hotlist_message'])
+                buflist += weechat.color(option_values['color.hotlist_message'])
             elif priority == 2:
                 buflist += weechat.color(option_values['color.hotlist_private'])
             elif priority == 3:
@@ -106,9 +108,9 @@ def build_list(data, item, window):
             # Add nick modes next to server buffers, if any are set
             if buffer_type == 'server':
                 # Search for and retrieve a pointer for the server
-                pointer = weechat.hdata_search(server_hdata, server_pointer, "${irc_server.name} == " + server, 1)
+                pointer    = weechat.hdata_search(server_hdata, server_pointer, "${irc_server.name} == " + server, 1)
 
-                nick_modes      = weechat.hdata_string(server_hdata, pointer, "nick_modes")
+                nick_modes = weechat.hdata_string(server_hdata, pointer, "nick_modes")
 
                 if nick_modes:
                     buflist += ' (+{})'.format(nick_modes)
@@ -120,11 +122,13 @@ def build_list(data, item, window):
     # All done. Return the list
     return buflist
 
+# Function for updating the bar on certain signals
 def signal_handler(data, signal, signal_data):
     weechat.bar_item_update('squigzlist')
 
     return weechat.WEECHAT_RC_OK
 
+# Function for updating variables and reloading bar when config options change
 option_values = {}
 def config_handler(data, option, value):
     # Splits the full config option name (plugins.var.python...) to something easier to work with
@@ -175,6 +179,7 @@ if weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script'
     # Loop through and set options with default values and descriptions, and load values into dict to use
     option_values = {}
     for option, values in options.items():
+        # First ensure it's not already set
         if not weechat.config_is_set_plugin(option):
             weechat.config_set_plugin(option, values[0])
 
@@ -189,7 +194,7 @@ if weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script'
     weechat.bar_item_new('squigzlist', 'build_list', '')
 
     # Hook various signals on which to refresh the list
-    signals = ["buffer_opened", "buffer_closed", "buffer_merged", "buffer_unmerged", "buffer_moved", "buffer_renamed", "buffer_switch", "buffer_hidden", "buffer_unhidden", "buffer_localvar_added", "buffer_localvar_changed", "hotlist_changed"]
+    signals = ['buffer_opened', 'buffer_closed', 'buffer_merged', 'buffer_unmerged', 'buffer_moved', 'buffer_renamed', 'buffer_switch', 'buffer_hidden', 'buffer_unhidden', 'buffer_localvar_added', 'buffer_localvar_changed', 'hotlist_changed']
 
     for signal in signals:
         weechat.hook_signal(signal, 'signal_handler', '')
