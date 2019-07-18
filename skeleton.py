@@ -12,7 +12,7 @@ SCRIPT_DESCRIPTION = ''
 SCRIPT_AUTHOR = ''
 
 def config_handler(data, option, value):
-	# Load updated options into memory, call other functions, etc
+    # Load updated options into memory, call other functions, etc
 
     return weechat.WEECHAT_RC_OK
 
