@@ -6,6 +6,9 @@ As awesome as the `buflist` plugin is, the format settings were getting far too 
 
 Screenshot available [here](https://imgur.com/a/suab6pd)
 
+#### Notes
+- No mouse support. It will probably never be added
+
 ### read_marker,py
 
 Somewhat hacky script that updates the `weechat.look.read_marker_string` setting so that a user-supplised string is always aligned to the sides - refreshes on window resize, results in drawing issues sometimes
