@@ -8,6 +8,9 @@ except ImportError:
     print('Please run in weechat')
     sys.exit()
 
+SCRIPT_NAME = 'squigzlist'
+SCRIPT_AUTHOR = 'squigz'
+SCRIPT_DESC = 'Another buffer list script'
 
 # Function for retrieving nick prefix (@, +, etc)
 def get_nick_prefix(pointer):
@@ -18,7 +21,7 @@ def get_nick_prefix(pointer):
 
     return prefix
 
-# Main function that builds the list
+# Main function that builds the list, set as the callback for the bar item
 def build_list(data, item, window):
     # Setup variables
     # First retrieve the `hdata`s, then get relevant lists
@@ -27,6 +30,7 @@ def build_list(data, item, window):
     hotlist_hdata  = weechat.hdata_get('hotlist')
     buffer_pointer = weechat.hdata_get_list(buffer_hdata, 'gui_buffers')
     server_pointer = weechat.hdata_get_list(server_hdata, 'irc_servers')
+    bar_width      = weechat.config_integer(weechat.config_get('weechat.bar.buffers.size'))
     buflist        = ''
 
     # Start looping through the buffers
@@ -75,6 +79,9 @@ def build_list(data, item, window):
                 buflist += '\n'
         # Start adding other buffers
         else:
+            # Add separator between servers
+            if option_values['look.server_separator'] == '1' and buffer_type == 'server':
+                buflist += '─' * bar_width
             # Print the appropriate color for the current buffer, as well as an icon for the current buffer
             if current_buffer:
                 buflist += weechat.color(option_values['color.current_fg'])
@@ -108,12 +115,15 @@ def build_list(data, item, window):
             # Add nick modes next to server buffers, if any are set
             if buffer_type == 'server':
                 # Search for and retrieve a pointer for the server
-                pointer    = weechat.hdata_search(server_hdata, server_pointer, "${irc_server.name} == " + server, 1)
+                pointer    = weechat.hdata_search(server_hdata, server_pointer, '${irc_server.name} == ' + server, 1)
 
-                nick_modes = weechat.hdata_string(server_hdata, pointer, "nick_modes")
+                # Then get the nick modes for that server
+                nick_modes = weechat.hdata_string(server_hdata, pointer, 'nick_modes')
 
                 if nick_modes:
                     buflist += ' (+{})'.format(nick_modes)
+
+            # Add the newline after each buffer
             buflist += '\n'
 
         # Move to the next buffer
@@ -129,7 +139,6 @@ def signal_handler(data, signal, signal_data):
     return weechat.WEECHAT_RC_OK
 
 # Function for updating variables and reloading bar when config options change
-option_values = {}
 def config_handler(data, option, value):
     # Splits the full config option name (plugins.var.python...) to something easier to work with
     option = '.'.join(option.split('.')[-2:])
@@ -141,12 +150,15 @@ def config_handler(data, option, value):
     return weechat.WEECHAT_RC_OK
 
 # Register the script
-if weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script', '', ''):
+if weechat.register(SCRIPT_NAME, SCRIPT_AUTHOR, '', '', SCRIPT_DESC, '', ''):
     # Start configuring options
     options = {
-        'display_conditions': (
-            '$\{buffer.hidden\} == 0)'
+        'look.display_conditions': (
+            '',
             'Conditions to display buffers (see /help eval)'),
+        'look.server_separator': (
+            '1',
+            'Draw separator between servers'),
         'color.default_fg': (
             '237',
             'Default foreground color for buffers'),
@@ -188,7 +200,7 @@ if weechat.register('squigzlist', 'squigz', '', '', 'Another buffer list script'
         option_values[option] = weechat.config_get_plugin(option)
 
     # Setup callback for config option updates
-    weechat.hook_config('plugins.var.python.squigzlist.*', 'config_handler', '')
+    weechat.hook_config('plugins.var.python.' + SCRIPT_NAME + '.*', 'config_handler', '')
 
     # Create bar item
     weechat.bar_item_new('squigzlist', 'build_list', '')
