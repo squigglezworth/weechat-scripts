@@ -47,6 +47,8 @@ if weechat.register('read_marker', 'squigz', '', '', '', '', ''):
 
     weechat.hook_config('plugins.var.python.read_marker.*', 'config_handler', '')
 
+    refresh()
+
     signals = ['signal_sigwinch']
     for signal in signals:
         weechat.hook_signal(signal, 'signal_handler', '')
