@@ -7,6 +7,7 @@ As awesome as the `buflist` plugin is, the format settings were getting far too 
 Screenshot available [here](https://imgur.com/a/suab6pd)
 
 #### Notes
+- Assumes a left/right bar named `buffers` with vertical filling
 - No mouse support. It will probably never be added
 
 ### read_marker,py
