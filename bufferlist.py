@@ -81,7 +81,7 @@ def build_list(data, item, window):
         else:
             # Add separator between servers
             if option_values['look.server_separator'] == '1' and buffer_type == 'server':
-                buflist += '─' * bar_width
+                buflist += '─' * bar_width + '\n'
             # Print the appropriate color for the current buffer, as well as an icon for the current buffer
             if current_buffer:
                 buflist += weechat.color(option_values['color.current_fg'])
